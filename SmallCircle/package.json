@@ -1,0 +1,14 @@
+{
+  "name": "facebook-friends-feeds-alexa",
+  "version": "1.0.0",
+  "description": "An Alexa skill to read friend list and their feeds",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Mingxuan Zha",
+  "dependencies": {
+    "alexa-sdk": "^1.0.11",
+    "facebook-node": "0.0.3"
+  }
+}

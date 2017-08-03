@@ -1,0 +1,3 @@
+readMyFriendListIntent get my Facebook friends
+readFriendRecentPostIntent recent posts
+readPersonFeedsIntent get feeds
