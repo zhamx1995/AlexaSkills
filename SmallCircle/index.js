@@ -30,6 +30,11 @@ var fetchingText = "Fetching data, " + waitingText;
 var friendNames = [];
 var friendIds = [];
 var index_friend = 0;
+// global variables for quick update
+var quickUpdate_Output = "";
+var quickUpdate_Size = 0;
+var quickUpdate_CurrentIndex = 0;
+var quickUpdate_NameQueue = [];
 
 
 // Create a new session handler
@@ -50,6 +55,58 @@ var Handler = {
         }
     },
 
+    // Read my fb friend list handler without stacked commands
+    'quickReadFriendRecentPostIntent': function () {
+        var alexa = this;
+        // Again check if we have an access token
+        if (accessToken) {
+            // Call into FB module and get friend list
+            FB.api("/me/friends", function (response) {
+                if (response && !response.error) {
+                    // If we have data
+                    if (response.data) {
+                        quickUpdate_Size = Math.min(response.data.length, 3);
+                        for (var i=0;i<quickUpdate_Size;i++) {
+                            quickUpdate_NameQueue.push(response.data[i].name);
+                            FB.api("/" + response.data[i].id + "/posts", function (response) {
+                                if (response && !response.error) {
+                                    // If we have data
+                                    if (response.data) {
+                                        quickUpdate_Output += quickUpdate_NameQueue.pop() + " posted: " + response.data[0].message + "; ";
+                                        if (quickUpdate_CurrentIndex == quickUpdate_Size-1) {
+                                            // give response
+                                            alexa.emit(':ask', quickUpdate_Output, quickUpdate_Output);
+                                            // clear global data
+                                            quickUpdate_Output = "";
+                                            quickUpdate_CurrentIndex = 0;
+                                        } else {
+                                            quickUpdate_CurrentIndex++;
+                                        }
+                                    } else {
+                                        // REPORT PROBLEM WITH PARSING DATA
+                                    }
+                                } else {
+                                    // Handle errors here.
+                                    console.log(response.error);
+                                }
+                            });
+                        }
+                    } else {
+                        // REPORT PROBLEM WITH PARSING DATA
+                        var output = "Error from Facebook";
+                        alexa.emit(':ask', output, output);
+                    }
+                } else {
+                    // Handle errors here.
+                    console.log(response.error);
+                }
+            });
+        } else {
+            this.emit(':tell', noAccessToken, tryLaterText);
+        }
+    },
+
+    // Read the most recent posts from friends saved before
     'readMyFriendListIntent': function () {
         var alexa = this;
 
@@ -103,7 +160,10 @@ var Handler = {
                         if (response.data) {
                             var output = friendNames[index_friend] + " posted: " + response.data[0].message + ".";
                             if (index_friend == friendNames.length-1) {
+                                // reset friend index and clear friendNames and friendIds
                                 index_friend = 0;
+                                friendNames = [];
+                                friendIds = [];                            
                             } else {
                                 index_friend++;
                             }
