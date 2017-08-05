@@ -210,8 +210,6 @@ var Handler = {
         }
     },
 
-
-
     'AMAZON.CancelIntent': function () {
         // Triggered wheen user asks Alexa top cancel interaction
         this.emit(':tell', stopSkillMessage);
@@ -225,6 +223,30 @@ var Handler = {
     // Triggered wheen user asks Alexa for help
     'AMAZON.HelpIntent': function () {
         this.emit(':ask', helpText, helpText);
+    },
+
+    // playground for speaking Chinese A
+    'playgroundChineseAIntent': function () {
+        var alexa = this;
+
+        var output = "Wall hen how."
+        this.emit(':ask', output, output);
+    },
+
+    // playground for speaking Chinese B
+    'playgroundChineseBIntent': function () {
+        var alexa = this;
+
+        var output = "Thai how la."
+        this.emit(':ask', output, output);
+    },
+
+    // playground for speaking Chinese C
+    'playgroundChineseCIntent': function () {
+        var alexa = this;
+
+        var output = "Wall de ming zi shi Alexa."
+        this.emit(':ask', output, output);
     },
 
     // Triggered when no intent matches Alexa request
